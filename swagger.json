@@ -1,0 +1,888 @@
+{
+  "openapi" : "3.0.0",
+  "info" : {
+    "description" : "初版个人页相关接口，状态码细则需要优化，部分字段可能不够合理\n",
+    "version" : "1.0.1",
+    "title" : "2050-web-api-pre",
+    "contact" : {
+      "email" : "test@163.com"
+    },
+    "license" : {
+      "name" : "Apache 2.0",
+      "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers" : [ {
+    "description" : "SwaggerHub API Auto Mocking",
+    "url" : "https://virtserver.swaggerhub.com/dogslee/2050-api/1.0.1"
+  }, {
+    "url" : "https://petstore.swagger.io/v2"
+  } ],
+  "tags" : [ {
+    "name" : "auth",
+    "description" : "验证登录相关接口\n"
+  }, {
+    "name" : "user",
+    "description" : "用户信息相关接口\n"
+  }, {
+    "name" : "admin",
+    "description" : "管理后台相关接口\n"
+  }, {
+    "name" : "interface",
+    "description" : "邀请相关接口\n"
+  }, {
+    "name" : "files",
+    "description" : "文件操作相关接口\n"
+  } ],
+  "paths" : {
+    "/auth/sms" : {
+      "post" : {
+        "tags" : [ "auth" ],
+        "summary" : "发送短信",
+        "description" : "通过发送人机验证返回的验证信息和手机号来获取短信验证码",
+        "operationId" : "updateUser",
+        "responses" : {
+          "200" : {
+            "description" : "操作成功，无返回"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        },
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/Sms"
+              }
+            }
+          },
+          "description" : "提价手机号和人机验证信息",
+          "required" : true
+        }
+      }
+    },
+    "/auth/login" : {
+      "post" : {
+        "tags" : [ "auth" ],
+        "summary" : "用户登录",
+        "description" : "通过手机短信验证码登录， 返回登录token",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Token"
+                }
+              }
+            },
+            "description" : "操作成功"
+          },
+          "400" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/responses/400Error"
+                }
+              }
+            },
+            "description" : "操作失败"
+          }
+        },
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "phone" : {
+                    "type" : "string"
+                  },
+                  "code" : {
+                    "type" : "string"
+                  }
+                }
+              }
+            }
+          },
+          "description" : "提交信息",
+          "required" : true
+        }
+      },
+      "patch" : {
+        "tags" : [ "auth" ],
+        "summary" : "用户更改登录手机号",
+        "description" : "通过已经有的用户ID和token来更新用户的信息",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "properties" : {
+                  "userId" : {
+                    "type" : "string",
+                    "description" : "用户ID"
+                  },
+                  "phone" : {
+                    "type" : "string",
+                    "description" : "手机号"
+                  },
+                  "code" : {
+                    "type" : "string",
+                    "description" : "短信验证码"
+                  }
+                }
+              }
+            }
+          },
+          "required" : true,
+          "description" : "提交信息"
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Token"
+                }
+              }
+            },
+            "description" : "更新信息成功"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/users/{userId}" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "获取用户信息",
+        "description" : "获取用户信息，是否能获取到交给后台服务逻辑处理\n",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "schema" : {
+            "type" : "string",
+            "description" : "用户ID"
+          },
+          "required" : true
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/User"
+                }
+              }
+            },
+            "description" : "操作成功"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      },
+      "patch" : {
+        "tags" : [ "user" ],
+        "summary" : "更新用户信息",
+        "description" : "更新用户信息， 是否可以更新交由服务端逻辑判断\n",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "schema" : {
+            "type" : "string",
+            "description" : "用户ID"
+          },
+          "required" : true
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "操作成功，无返回"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/user/hives" : {
+      "get" : {
+        "tags" : [ "user" ],
+        "summary" : "获取用户的参与的蜂巢信息",
+        "description" : "通过用户ID获取用户参与的丰巢信息\n1 支持名称前缀模糊检索 \n2 支持翻页\n",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "用户ID"
+          },
+          "required" : true
+        }, {
+          "name" : "title",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "检索的蜂巢标题"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "页码",
+            "example" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "单页数量",
+            "example" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "count" : {
+                      "type" : "integer",
+                      "description" : "总数"
+                    },
+                    "hiveList" : {
+                      "type" : "array",
+                      "items" : {
+                        "$ref" : "#/components/schemas/Hive"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "description" : "success"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/admin/users" : {
+      "get" : {
+        "tags" : [ "admin" ],
+        "summary" : "管理后台获取用户列表",
+        "description" : "管理后台获取用户列表",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "用户名称"
+          },
+          "example" : "张三"
+        }, {
+          "name" : "nameEn",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "英文名称"
+          },
+          "example" : "zhangshan"
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "页码",
+            "example" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "单页数量",
+            "example" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "获取用户列表",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "description" : "用户列表信息",
+                  "properties" : {
+                    "count" : {
+                      "type" : "integer",
+                      "description" : "用户总数"
+                    },
+                    "userList" : {
+                      "type" : "array",
+                      "description" : "用户列表",
+                      "items" : {
+                        "$ref" : "#/components/schemas/User"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/admin/users{userId}" : {
+      "patch" : {
+        "tags" : [ "admin" ],
+        "summary" : "编辑用户状态",
+        "description" : "编辑用户状态",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "userId",
+          "in" : "path",
+          "description" : "用户ID",
+          "schema" : {
+            "type" : "string",
+            "example" : "user001"
+          },
+          "required" : true
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "online" : {
+                    "type" : "integer",
+                    "description" : "是否上线"
+                  },
+                  "role" : {
+                    "type" : "string",
+                    "description" : "角色"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "操作成功，无返回"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/admin/hive/convener" : {
+      "post" : {
+        "tags" : [ "admin" ],
+        "summary" : "添加召集人",
+        "description" : "添加召集人",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "添加召集人对象",
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "userId" : {
+                    "type" : "string",
+                    "description" : "用户ID"
+                  },
+                  "hiveId" : {
+                    "type" : "string",
+                    "description" : "蜂巢ID"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "201" : {
+            "description" : "创建成功",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "convenerId" : {
+                      "type" : "string",
+                      "description" : "召集人ID"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      },
+      "delete" : {
+        "tags" : [ "admin" ],
+        "summary" : "删除召集人",
+        "description" : "删除召集人",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "convener_id",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "召集人ID"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "删除成功，无返回"
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          },
+          "401" : {
+            "description" : "用户未认证"
+          }
+        }
+      }
+    },
+    "/admin/stats/city" : {
+      "get" : {
+        "tags" : [ "admin" ],
+        "summary" : "获取统计城市信息",
+        "description" : "后台管理页面统计用户所在的城市信息\n",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "timezone",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "按时区划分城市"
+          },
+          "example" : "东八区"
+        }, {
+          "name" : "country",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "国家"
+          }
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "页码",
+            "example" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "单页数量",
+            "example" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "城市统计信息",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "description" : "城市统计对象(待商榷)",
+                  "properties" : {
+                    "timezone" : {
+                      "type" : "string",
+                      "description" : "时区"
+                    },
+                    "cityCount" : {
+                      "type" : "integer",
+                      "description" : "该时区中有用户存在的全部城市数量"
+                    },
+                    "items" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "city" : {
+                            "type" : "string"
+                          },
+                          "userCount" : {
+                            "type" : "integer"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/interface" : {
+      "get" : {
+        "tags" : [ "interface" ],
+        "summary" : "获取邀请人列表",
+        "description" : "获取邀请人列表",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "parameters" : [ {
+          "name" : "name",
+          "in" : "query",
+          "schema" : {
+            "type" : "string",
+            "description" : "邀请人名字"
+          },
+          "example" : "张三"
+        }, {
+          "name" : "page",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "页码",
+            "example" : 1
+          }
+        }, {
+          "name" : "size",
+          "in" : "query",
+          "schema" : {
+            "type" : "integer",
+            "description" : "单页数量",
+            "example" : 10
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "返回邀请人列表",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "description" : "邀请人列表对象",
+                  "properties" : {
+                    "count" : {
+                      "type" : "integer",
+                      "description" : "总数"
+                    },
+                    "items" : {
+                      "type" : "array",
+                      "items" : {
+                        "type" : "object",
+                        "properties" : {
+                          "name" : {
+                            "type" : "string"
+                          },
+                          "userId" : {
+                            "type" : "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    },
+    "/files/img" : {
+      "post" : {
+        "tags" : [ "files" ],
+        "summary" : "上传图片",
+        "description" : "上传图片",
+        "security" : [ {
+          "apiKeyAuth" : [ ]
+        } ],
+        "requestBody" : {
+          "description" : "Optional description in *Markdown*",
+          "required" : true,
+          "content" : {
+            "multipart/form-data" : {
+              "schema" : {
+                "type" : "object",
+                "properties" : {
+                  "body" : {
+                    "type" : "string",
+                    "description" : "图片内容",
+                    "format" : "binary"
+                  },
+                  "title" : {
+                    "type" : "string",
+                    "description" : "图片标题"
+                  },
+                  "year" : {
+                    "type" : "string",
+                    "description" : "文件年份"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "description" : "文件已经被创建，返回已经创建的文件连接",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "url" : {
+                      "type" : "string",
+                      "description" : "文件链接"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "201" : {
+            "description" : "文件创建成功",
+            "content" : {
+              "application/json" : {
+                "schema" : {
+                  "type" : "object",
+                  "properties" : {
+                    "url" : {
+                      "type" : "string",
+                      "description" : "文件链接"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400" : {
+            "$ref" : "#/components/responses/400Error"
+          }
+        }
+      }
+    }
+  },
+  "components" : {
+    "schemas" : {
+      "Sms" : {
+        "type" : "object",
+        "properties" : {
+          "phone" : {
+            "type" : "string",
+            "description" : "手机号"
+          },
+          "ticket" : {
+            "type" : "string",
+            "description" : "人机验证凭证"
+          }
+        },
+        "xml" : {
+          "name" : "Sms"
+        }
+      },
+      "Token" : {
+        "type" : "object",
+        "properties" : {
+          "userId" : {
+            "type" : "string",
+            "description" : "用户的ID"
+          },
+          "token" : {
+            "type" : "string",
+            "description" : "返回的token"
+          },
+          "refresh" : {
+            "type" : "string",
+            "description" : "刷新token"
+          },
+          "exprie" : {
+            "type" : "integer",
+            "description" : "有效时间秒"
+          }
+        },
+        "xml" : {
+          "name" : "Token"
+        }
+      },
+      "User" : {
+        "type" : "object",
+        "properties" : {
+          "regionCode" : {
+            "type" : "string",
+            "description" : "手机区号"
+          },
+          "phone" : {
+            "type" : "string",
+            "description" : "手机号"
+          },
+          "email" : {
+            "type" : "string",
+            "description" : "邮件"
+          },
+          "inviterId" : {
+            "type" : "string",
+            "description" : "邀请者ID"
+          },
+          "name" : {
+            "type" : "string",
+            "description" : "姓名"
+          },
+          "nameEn" : {
+            "type" : "string",
+            "description" : "英文名称"
+          },
+          "description" : {
+            "type" : "string",
+            "description" : "介绍"
+          },
+          "portrait" : {
+            "type" : "string",
+            "description" : "头像"
+          },
+          "country" : {
+            "type" : "string",
+            "description" : "国家"
+          },
+          "region" : {
+            "type" : "string",
+            "description" : "区域"
+          },
+          "city" : {
+            "type" : "string",
+            "description" : "城市"
+          },
+          "createAt" : {
+            "type" : "string",
+            "description" : "创建时间"
+          }
+        }
+      },
+      "Hive" : {
+        "description" : "蜂巢基本信息",
+        "type" : "object",
+        "properties" : {
+          "id" : {
+            "type" : "integer"
+          },
+          "parentName" : {
+            "type" : "string"
+          },
+          "title" : {
+            "type" : "string"
+          },
+          "logo" : {
+            "type" : "string"
+          },
+          "description" : {
+            "type" : "string"
+          },
+          "strategy" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "createdAt" : {
+            "type" : "string"
+          },
+          "updatedAt" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "responses" : {
+      "400Error" : {
+        "description" : "Invalid request",
+        "content" : {
+          "application/json" : {
+            "schema" : {
+              "type" : "object",
+              "properties" : {
+                "error" : {
+                  "type" : "object",
+                  "properties" : {
+                    "code" : {
+                      "type" : "integer"
+                    },
+                    "message" : {
+                      "type" : "string"
+                    },
+                    "target" : {
+                      "type" : "string"
+                    },
+                    "innererror" : {
+                      "type" : "object"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes" : {
+      "apiKeyAuth" : {
+        "type" : "apiKey",
+        "in" : "header",
+        "name" : "Authorization"
+      }
+    }
+  }
+}
